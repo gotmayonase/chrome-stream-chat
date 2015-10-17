@@ -6,7 +6,7 @@ function processTwitchLogElement($e){
 		var sender = $c.find(".from").text().trim();
 		var comment = $c.find(".message").text().trim();
     chrome.runtime.sendMessage(
-  	    {"host": window.location.hostname, "sender" : sender, "message" : message},
+  	    {"host": window.location.hostname, "sender" : sender, "message" : comment},
   	    function (response) {
   	        console.log(response);
   	    }
