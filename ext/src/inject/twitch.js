@@ -14,10 +14,14 @@ function processTwitchLogElement($e){
 	}
 }
 
-$(function(){
-  $('ul.chat-lines').bind('DOMNodeInserted', function(event) {
-    if (event.target.nodeName == 'DIV') {
-      processTwitchLogElement($(event.target).find('li.chat-line'));
-    }
-  })
+var readyStateCheckInterval = setInterval(function() {
+  var $ul = $('ul.chat-lines');
+  if ($ul.length) {
+    clearInterval(readyStateCheckInterval);
+    $ul.bind('DOMNodeInserted', function(event) {
+      if (event.target.nodeName == 'DIV') {
+        processTwitchLogElement($(event.target).find('li.chat-line'));
+      }
+    })
+  }
 });
