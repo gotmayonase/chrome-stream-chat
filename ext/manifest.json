@@ -19,20 +19,36 @@
   "background": {
         "scripts": [
 	        "js/jquery/jquery.min.js",
-            "src/inject/background.js"
+          "src/inject/background.js"
         ],
         "persistent": true
     },
   "content_scripts": [
     {
       "matches": [
-	    "https://www.youtube.com/*",
-	    "https://www.livecoding.tv/*",
-	    "http://www.twitch.tv/*"
+  	    "http://www.twitch.tv/*"
       ],
       "js": [
         "js/jquery/jquery.min.js",
-        "src/inject/inject.js"
+        "src/inject/twitch.js"
+      ]
+    },
+    {
+      "matches": [
+  	    "https://www.youtube.com/*"
+      ],
+      "js": [
+        "js/jquery/jquery.min.js",
+        "src/inject/youtube.js"
+      ]
+    },
+    {
+      "matches": [
+  	    "https://www.livecoding.tv/*"
+      ],
+      "js": [
+        "js/jquery/jquery.min.js",
+        "src/inject/livecoding.js"
       ]
     }
   ]

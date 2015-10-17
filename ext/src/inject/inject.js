@@ -1,6 +1,4 @@
-
 function processLog(host, sender, message){
-	
 	chrome.runtime.sendMessage(
 	    {"host": host, "sender" : sender, "message" : message},
 	    function (response) {
@@ -11,21 +9,20 @@ function processLog(host, sender, message){
 
 
 function processLiveCodingLogElement($e){
-	console.log($e.text());
-	
-	var sender = $e.find("a").text().trim();
+	console.log('livecoding');
 	var $c = $e.clone();
+	var sender = $c.find("a").find('small').remove().end().text();
 	$c.find("a").remove();
 	$c.find("img").replaceWith(function() { return $.trim(this.alt); });
 	var comment = $c.text().trim();
-	
+
 	processLog(window.location.hostname, sender, comment);
 }
 
 function processYouTubeLogElement($e){
 	try{
-		var sender = $e.find(".inline-author").text().trim();
-		var comment = $e.find(".inline-comment").text().trim();
+		var sender = $e.find(".yt-user-name").text().trim();
+		var comment = $e.find(".comment-text").text().trim();
 		processLog(window.location.hostname, sender, comment);
 	}catch(e){
 		console.log(e);
@@ -44,66 +41,37 @@ function processTwitchLogElement($e){
 	}
 }
 
-
+$(function(){
+	console.log('document ready');
+});
 chrome.extension.sendMessage({}, function(response) {
 	var readyStateCheckInterval = setInterval(function() {
 		if (document.readyState === "complete") {
+			console.log('here');
+			console.log($('ul.message-pane'));
 			clearInterval(readyStateCheckInterval);
-	
-			// ----------------------------------------------------------
-			// This part of the script triggers when page is done loading
-			// ----------------------------------------------------------
-			
-				var currLCSib = false;
-				var currYTSib = false;
-				var currTWSib = false;
-				setInterval(function() {
-					// livecoding.tv
-					if(!currLCSib){
-						currLCSib = $("ul.message-pane li:first");
-						if(currLCSib.length){
-							processLiveCodingLogElement(currLCSib);
-						}else{
-							currLCSib = false;
-						}
-					}else if(currLCSib.next().length){
-						currLCSib = currLCSib.next();
-						processLiveCodingLogElement(currLCSib);
-					}
+			// Twitch
+			$('ul.chat-lines').bind('DOMNodeInserted', function(event) {
+				if (event.target.nodeName == 'DIV') {
+					processTwitchLogElement($(event.target).find('li.chat-line'));
+				}
+			})
 
-					// youtube
-					if(!currYTSib){
-						currYTSib = $("ul#all-comments li:first");
-						if(currYTSib.length){
-							processYouTubeLogElement(currYTSib);
-						}else{
-							currYTSib = false;
-						}
-					}else if(currYTSib.next().length){
-						currYTSib = currYTSib.next();
-						processYouTubeLogElement(currYTSib);
-					}
-					
-					// twitch
-					if(!currTWSib){
-						currTWSib = $("ul.chat-lines li.chat-line:first");
-						if(currTWSib.length){
-							processTwitchLogElement(currTWSib);
-						}else{
-							currTWSib = false;
-						}
-					}else if(currTWSib.nextAll("li.chat-line").length){
-						currTWSib = currTWSib.nextAll("li.chat-line");
-						processTwitchLogElement(currTWSib);
-					}
+			// LiveCoding
+			$('ul.message-pane').bind('DOMNodeInserted', function(event) {
+				console.log(event);
+				if (event.target.nodeName == 'LI') {
+					console.log($(event.target));
+					processLiveCodingLogElement($(event.target));
+				}
+			});
 
-				}, 100);
-			
-			
-			
-
-	
-
+			// YouTube
+			$("ul#all-comments").bind('DOMNodeInserted', function(event) {
+				if (event.target.nodeName == 'LI') {
+					processYouTubeLogElement($(event.target));
+				}
+			});
 		}
 	}, 10);
 });
